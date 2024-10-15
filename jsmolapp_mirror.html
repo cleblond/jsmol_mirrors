@@ -36,7 +36,7 @@
             serverURL: "/jmol-16.2.37/jsmol/php/jsmol.php",
             use: "HTML5",
             j2sPath: "/jmol-16.2.37/jsmol/j2s",
-            script: " zap; set modelKitMode true; set StructureModifiedCallback 'StructureModifiedCallback'; set loadStructCallback 'loadStructCallback'",  // Enable modelKit mode on the left applet
+            script: "zap; load $methane; set modelKitMode true; set StructureModifiedCallback 'StructureModifiedCallback'; set loadStructCallback 'loadStructCallback'; zoom 100;",  // Enable modelKit mode on the left applet
             debug: false
         };
             var jsmolLeft = Jmol.getApplet("jsmolLeft", InfoLeft);
@@ -59,7 +59,7 @@
             serverURL: "/jmol-16.2.37/jsmol/php/jsmol.php",
             use: "HTML5",
             j2sPath: "/jmol-16.2.37/jsmol/j2s",
-            script: " zap;",  // Enable modelKit mode on the left applet
+            script: "set autoZoom off; zap;",  // Enable modelKit mode on the left applet
             debug: false
         };
 
@@ -74,7 +74,19 @@
 
     <script type="text/javascript">
 
+        function calculateChirality() {
+            
+              //jmscript('select *;calculate chirality;set labelfor {*} \"%[chirality]\"; select *;font label 20;set labeloffset 10 10; background label yellow;color labels black;set labelfor {*} \"%[chirality]\";');
+              
+            const scr = 'select *;calculate chirality;set labelfor {*} \"%[chirality]\"; select *;font label 20;set labeloffset 10 10; background label yellow;color labels black;set labelfor {*} \"%[chirality]\";';
+              
+            Jmol.script(jsmolRight, scr);
+            Jmol.script(jsmolLeft, scr);  
+              
+              
+            
 
+        }
 
 
         // Function to mirror the molecule on the right
@@ -84,16 +96,16 @@
         
             var molData = Jmol.scriptWait(jsmolLeft, 'write MOL');  // Get structure in MOL format
             
-            console.log(molData);
+            //console.log(molData);
             var molfile = Jmol.getPropertyAsString(jsmolLeft, "extractModel");
-            console.log(molfile);
+            //console.log(molfile);
             
             
             var tscr = '"model example"'+molfile+' end "model example"';
 
-            console.log(tscr);
+            //console.log(tscr);
             
-            var mirrorscr = 'data '+tscr+'; show data; select *; print "helle"; invertSelected plane x=0; zoom 80;';
+            var mirrorscr = 'data '+tscr+'; show data; select *; print "helle"; invertSelected plane x=0; zoom 100;';
             
             Jmol.script(jsmolRight, mirrorscr);
             sync();
@@ -106,7 +118,7 @@
                 center;                        // Center the mirrored structure
             `);
             */
-            
+            calculateChirality();
             
             
             
@@ -120,21 +132,21 @@
         }
         
         function StructureModifiedCallback(x, y, z) {
-        
+            
              console.log("SMCB");
              mirrorMolecule();
-        
+             //calculateChirality();
         
         }
         
         
         function sync() {
-         var syncing = document.getElementById("drive").checked
-         var s = (syncing ? "sync * on;sync * \"set syncMouse TRUE\"": "sync * off")
-         s += ";set syncCallback 'mysynccallback'"
+         //var syncing = document.getElementById("drive").checked
+         //var s = (syncing ? "sync * on;sync * \"set syncMouse TRUE\"": "sync * off")
+         //s += ";set syncCallback 'mysynccallback'"
          
          //jmolScript(s, "A");
-         s = "sync * on;sync * \"set syncMouse TRUE\" ;set syncCallback 'mysynccallback'";
+         const s = "sync * on;sync * \"set syncMouse TRUE\" ;set syncCallback 'mysynccallback'";
          
          Jmol.script(jsmolLeft, s);
          
@@ -154,8 +166,24 @@
         return script
         }
         
-        
-        
+        $(document).ready(function() {
+            // Initialize the JSmol applets
+            //document.getElementById("jsmolLeft").innerHTML = Jmol.getAppletHtml("jsmolLeft", InfoLeft);
+            //document.getElementById("jsmolRight").innerHTML = Jmol.getAppletHtml("jsmolRight", InfoRight);
+
+            // Set the callback for real-time mirroring
+            //Jmol.script(jsmolLeft, "set structureModifiedCallback 'mirrorMolecule';");
+
+            // At the start, mirror methane from left to right
+            //mirrorMolecule();  // Mirror methane from left to right at the start
+            
+            setTimeout(() => {
+              mirrorMolecule();
+            }, "1000");
+
+            
+            
+        });
         
         
 
@@ -165,8 +193,8 @@
         //});
 
         // Initialize the JSmol applets
-        document.getElementById("jsmolLeft").innerHTML = Jmol.getAppletHtml("jsmolLeft", InfoLeft);
-        document.getElementById("jsmolRight").innerHTML = Jmol.getAppletHtml("jsmolRight", InfoRight);
+        //document.getElementById("jsmolLeft").innerHTML = Jmol.getAppletHtml("jsmolLeft", InfoLeft);
+        //document.getElementById("jsmolRight").innerHTML = Jmol.getAppletHtml("jsmolRight", InfoRight);
     </script>
 </body>
 </html>
