@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSmol Mirror Plane App</title>
+    <script type="text/javascript" src="https://chemapps.stolaf.edu/jmol/jsmol/JSmol.min.js"></script>
+    <style>
+        #jsmolLeft, #jsmolRight {
+            width: 50%;
+            height: 500px;
+            display: inline-block;
+        }
+        #mirror {
+            display: inline-block;
+            width: 10px;
+            height: 500px;
+            background-color: gray;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSmol Mirror Plane App</h1>
+    <form id="info"><input id="drive" onclick="sync()" type="checkbox" />Synchronize</form>
+
+    <table>
+    <tr>
+    <td>
+    <div id="jsmolLeft">
+
+    <script>
+            var InfoLeft = {
+            width: 500,
+            height: 500,
+            serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+            use: "HTML5",
+            j2sPath: "https://chemapps.stolaf.edu/jmol/jsmol/j2s",
+            script: " zap; set modelKitMode true; set StructureModifiedCallback 'StructureModifiedCallback';",  // Enable modelKit mode on the left applet
+            debug: false
+        };
+            var jsmolLeft = Jmol.getApplet("jsmolLeft", InfoLeft);
+    </script>
+
+    </div>
+    
+    </td>
+    <td>
+    
+  
+    <div id="mirror"></div>
+    </td>
+    <td>
+    <div id="jsmolRight">
+    <script>
+            var InfoRight = {
+            width: 500,
+            height: 500,
+            serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+            use: "HTML5",
+            j2sPath: "https://chemapps.stolaf.edu/jmol/jsmol/j2s",
+            debug: false
+        };
+
+
+        var jsmolRight = Jmol.getApplet("jsmolRight", InfoRight);
+    </script>
+    
+    </div>
+    </td>
+    </tr>
+    </table>
+
+    <script type="text/javascript">
+
+
+
+
+        // Function to mirror the molecule on the right
+        function mirrorMolecule() {
+        
+        
+        
+            var molData = Jmol.scriptWait(jsmolLeft, 'write MOL');  // Get structure in MOL format
+            
+            console.log(molData);
+            var molfile = Jmol.getPropertyAsString(jsmolLeft, "extractModel");
+            console.log(molfile);
+            
+            
+            var tscr = '"model example"'+molfile+' end "model example"';
+
+            console.log(tscr);
+            
+            var mirrorscr = 'data '+tscr+'; show data; select *; print "helle"; invertSelected plane x=0;';
+            
+            Jmol.script(jsmolRight, mirrorscr);
+            
+            
+            /*
+            Jmol.script(jsmolRight, `
+                
+                data `+molfile+`; show data;
+                invertSelection {selected};    // Mirror the structure
+                center;                        // Center the mirrored structure
+            `);
+            */
+            
+            
+            
+            
+            
+        }
+        
+        function StructureModifiedCallback(x, y, z) {
+        
+             console.log("SMCB");
+             mirrorMolecule();
+        
+        
+        }
+        
+        
+        function sync() {
+         var syncing = document.getElementById("drive").checked
+         var s = (syncing ? "sync * on;sync * \"set syncMouse TRUE\"": "sync * off")
+         s += ";set syncCallback 'mysynccallback'"
+         
+         //jmolScript(s, "A");
+         
+         Jmol.script(jsmolLeft, s);
+         
+         
+        }
+        
+
+        function mysynccallback(app, script) {
+	        document.title = script
+        if (script.indexOf("Mouse: rotateXYBy") == 0) {
+	        var S = script.split(" ");
+	        S[2] = -parseFloat(S[2]);
+        //	S[3] = -parseFloat(S[3]);
+	        script = S.join(" ")
+	        document.title = script
+        }
+        return script
+        }
+        
+        
+        
+        
+        
+
+        // Add a callback to update the right applet when the left applet changes
+        //Jmol.setCallback(jsmolLeft, "set StructureModifiedCallback", function() {
+            //mirrorMolecule();  // Mirror the molecule every time the left applet is modified
+        //});
+
+        // Initialize the JSmol applets
+        document.getElementById("jsmolLeft").innerHTML = Jmol.getAppletHtml("jsmolLeft", InfoLeft);
+        document.getElementById("jsmolRight").innerHTML = Jmol.getAppletHtml("jsmolRight", InfoRight);
+    </script>
+</body>
+</html>
+
