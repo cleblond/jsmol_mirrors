@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSmol Mirror Plane App</title>
-    <script type="text/javascript" src="https://chemapps.stolaf.edu/jmol/jsmol/JSmol.min.js"></script>
+    <script type="text/javascript" src="/jmol-16.2.37/jsmol/JSmol.min.js"></script>
     <style>
         #jsmolLeft, #jsmolRight {
             width: 50%;
@@ -33,10 +33,10 @@
             var InfoLeft = {
             width: 500,
             height: 500,
-            serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+            serverURL: "/jmol-16.2.37/jsmol/php/jsmol.php",
             use: "HTML5",
-            j2sPath: "https://chemapps.stolaf.edu/jmol/jsmol/j2s",
-            script: " zap; set modelKitMode true; set StructureModifiedCallback 'StructureModifiedCallback';",  // Enable modelKit mode on the left applet
+            j2sPath: "/jmol-16.2.37/jsmol/j2s",
+            script: " zap; set modelKitMode true; set StructureModifiedCallback 'StructureModifiedCallback'; set loadStructCallback 'loadStructCallback'",  // Enable modelKit mode on the left applet
             debug: false
         };
             var jsmolLeft = Jmol.getApplet("jsmolLeft", InfoLeft);
@@ -56,9 +56,10 @@
             var InfoRight = {
             width: 500,
             height: 500,
-            serverURL: "https://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+            serverURL: "/jmol-16.2.37/jsmol/php/jsmol.php",
             use: "HTML5",
-            j2sPath: "https://chemapps.stolaf.edu/jmol/jsmol/j2s",
+            j2sPath: "/jmol-16.2.37/jsmol/j2s",
+            script: " zap;",  // Enable modelKit mode on the left applet
             debug: false
         };
 
@@ -92,10 +93,10 @@
 
             console.log(tscr);
             
-            var mirrorscr = 'data '+tscr+'; show data; select *; print "helle"; invertSelected plane x=0;';
+            var mirrorscr = 'data '+tscr+'; show data; select *; print "helle"; invertSelected plane x=0; zoom 80;';
             
             Jmol.script(jsmolRight, mirrorscr);
-            
+            sync();
             
             /*
             Jmol.script(jsmolRight, `
@@ -110,6 +111,12 @@
             
             
             
+        }
+        
+        function LoadStructCallback(a,b,c,d,e,f,g,h) {
+                console.log("LSCB");
+        	mirrorMolecule();
+        
         }
         
         function StructureModifiedCallback(x, y, z) {
@@ -127,6 +134,7 @@
          s += ";set syncCallback 'mysynccallback'"
          
          //jmolScript(s, "A");
+         s = "sync * on;sync * \"set syncMouse TRUE\" ;set syncCallback 'mysynccallback'";
          
          Jmol.script(jsmolLeft, s);
          
