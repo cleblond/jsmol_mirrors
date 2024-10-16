@@ -22,7 +22,7 @@
 </head>
 <body>
     <h1>JSmol Mirror Plane App</h1>
-    <form id="info"><input id="drive" onclick="sync()" type="checkbox" />Synchronize</form>
+    <!-- <form id="info"><input id="drive" onclick="sync()" type="checkbox" />Synchronize</form> -->
 
     <table>
     <tr>
@@ -36,7 +36,7 @@
             serverURL: "/jmol-16.2.37/jsmol/php/jsmol.php",
             use: "HTML5",
             j2sPath: "/jmol-16.2.37/jsmol/j2s",
-            script: "zap; load $methane; set modelKitMode true; set StructureModifiedCallback 'StructureModifiedCallback'; set loadStructCallback 'loadStructCallback'; zoom 100;",  // Enable modelKit mode on the left applet
+            script: "zap; load $chlorobromomethanol; set modelKitMode true; set StructureModifiedCallback 'StructureModifiedCallback'; set loadStructCallback 'loadStructCallback'; zoom 100; set elementkey On;",  // Enable modelKit mode on the left applet
             debug: false
         };
             var jsmolLeft = Jmol.getApplet("jsmolLeft", InfoLeft);
@@ -59,7 +59,7 @@
             serverURL: "/jmol-16.2.37/jsmol/php/jsmol.php",
             use: "HTML5",
             j2sPath: "/jmol-16.2.37/jsmol/j2s",
-            script: "set autoZoom off; zap;",  // Enable modelKit mode on the left applet
+            script: "zap; zoom 100;",  // Enable modelKit mode on the left applet
             debug: false
         };
 
@@ -92,7 +92,7 @@
         // Function to mirror the molecule on the right
         function mirrorMolecule() {
         
-        
+
         
             var molData = Jmol.scriptWait(jsmolLeft, 'write MOL');  // Get structure in MOL format
             
@@ -105,7 +105,7 @@
 
             //console.log(tscr);
             
-            var mirrorscr = 'data '+tscr+'; show data; select *; print "helle"; invertSelected plane x=0; zoom 100;';
+            var mirrorscr = 'data '+tscr+'; show data; select *; print "helle"; invertSelected plane x=0;';
             
             Jmol.script(jsmolRight, mirrorscr);
             sync();
@@ -120,7 +120,8 @@
             */
             calculateChirality();
             
-            
+            Jmol.script(jsmolRight, "center;");
+            Jmol.script(jsmolLeft, "center;");
             
             
         }
